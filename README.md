@@ -10,6 +10,7 @@
     - [Notes](#notes)
       - [Downloading the dataset](#downloading-the-dataset)
       - [Parallelization and hardware](#parallelization-and-hardware)
+      - [macOS users](#macos-users)
   
 ### Image preprocessing
 
@@ -46,3 +47,20 @@ In order to counter network issues, ADNI recommends the use of _Download Manager
 
 A serial processing of the pipeline would be a poor implementation. Thus, the pipeline has been written, keeping in mind the bottlenecks, to achieve a high degree of parallelization. The speed of the pipeline is going to be highly dependent on the hardware it is running on; more precisely, on the speed and number of parallel processing units.  
 There is still some room to optimize this further. Moving forward, the code can be modified to make use of GPUs, which have more parallel computing units than a CPU.
+
+#### macOS users
+
+For people trying to run this pipeline on a Mac, you will likely have to turn of **System Integrity Protection (SIP)**. This is because the SIP does not allow the execution of the FreeSurfer and FSL binaries from script.  
+You can check the status of SIP on your Mac in the Terminal as follows:
+
+``` bash
+$ csrutil status
+System Integrity Protection status: enabled.
+```
+
+You can disable SIP in the following manner:
+
+1. Boot into Recovery Mode
+2. Choose Utilities > Terminal
+3. Enter `csrutil disable`
+4. Enter `reboot`
