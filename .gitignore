@@ -1,0 +1,11 @@
+# macOS files
+.DS_Store
+
+# Jupyter files
+.ipynb_checkpoints/
+
+# VSCode files
+.vscode/
+
+# Read-only files
+# Talairach_Atlas.csv

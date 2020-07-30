@@ -42,9 +42,9 @@ fi
 
 apply_smoothing_filter() {
 	if [[ `$FSLDIR/bin/fslval $1/mni.nii.gz dim4` -lt 10 ]]; then
-		$FREESURFER_HOME/bin/mri_fwhm --smooth-only --i $1/mni.nii.gz --fwhm 4.6 --o $1/out.nii.gz >/dev/null
+		$FREESURFER_HOME/bin/mri_fwhm --smooth-only --i $1/mni.nii.gz --fwhm 4.6 --o $1/out.nii.gz >/dev/null 2>&1
 	else
-		$FREESURFER_HOME/bin/mri_fwhm --i $1/mni.nii.gz --fwhm 4.6 --o $1/out.nii.gz >/dev/null
+		$FREESURFER_HOME/bin/mri_fwhm --i $1/mni.nii.gz --fwhm 4.6 --o $1/out.nii.gz >/dev/null 2>&1
 	fi
 	# verify_correctness $1
 }
@@ -52,7 +52,7 @@ apply_smoothing_filter() {
 registration() {
 	if [[ "$1" != "Metadata" ]]; then
 		if [[ -e $1/combined.nii.gz ]]; then
-			$FREESURFER_HOME/bin/mri_vol2vol --mni152reg --mov $1/combined.nii.gz --o $1/mni.nii.gz >/dev/null
+			$FREESURFER_HOME/bin/mri_vol2vol --mni152reg --mov $1/combined.nii.gz --o $1/mni.nii.gz >/dev/null 2>&1
 			apply_smoothing_filter $1
 		fi
 	fi

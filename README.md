@@ -4,6 +4,7 @@
 
 - [ADNI-Project](#adni-project)
   - [A fully automated pipeline for PET image analysis aimed at time efficiency and accuracy](#a-fully-automated-pipeline-for-pet-image-analysis-aimed-at-time-efficiency-and-accuracy)
+    - [Installation guide](#installation-guide)
     - [Image preprocessing](#image-preprocessing)
     - [Network construction](#network-construction)
     - [Network analysis](#network-analysis)
@@ -11,7 +12,14 @@
       - [Downloading the dataset](#downloading-the-dataset)
       - [Parallelization and hardware](#parallelization-and-hardware)
       - [macOS users](#macos-users)
-  
+
+### Installation guide
+
+1. Download and install [FreeSurfer](https://surfer.nmr.mgh.harvard.edu/fswiki/DownloadAndInstall) and [FSL](https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/FslInstallation)
+2. Clone this repository: `git clone https://github.com/raghavprasad13/ADNI-Project.git`
+3. In your terminal, navigate to the location you cloned this repository and type `pip3 install -r requirements.txt` to install the Python dependencies
+4. Run the pipeline: `./full_pipeline.sh path/to/dataset`
+
 ### Image preprocessing
 
 The first step in image preprocessing is extraction of the scans from .zip files and _concatenation of frames_. A PET image is a four-dimensional object, comprising **voxels** (which account for 3 out of the 4 dimensions) over multiple **frames** (which is the 4th dimension, the time dimension). All the PET images in the ADNI database are split up into their constituent frames. This is where it differs from the OASIS3 database. Thus, they need to be concatenated before further processing. This is done using the `fslmerge` tool, part of the [FSL](https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/) software suite.  
@@ -61,6 +69,6 @@ System Integrity Protection status: enabled.
 You can disable SIP in the following manner:
 
 1. Boot into Recovery Mode
-2. Choose Utilities > Terminal
-3. Enter `csrutil disable`
-4. Enter `reboot`
+2. Choose `Utilities` > `Terminal`
+3. Type `csrutil disable` and hit return
+4. Enter `reboot` and hit return

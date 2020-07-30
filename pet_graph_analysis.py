@@ -28,7 +28,7 @@ list_of_attribs.append('Area')
 
 psych_tests = ['LOGIMEM', 'DIGIF', 'DIGIFLEN', 'DIGIB', 'DIGIBLEN', 'ANIMALS',
                'VEG', 'TRAILA', 'TRAILB', 'WAIS', 'BOSTON']
-atlas_df = pd.read_csv('Talairach Atlas.csv', usecols=['Node #', 'Psych Test',
+atlas_df = pd.read_csv('Talairach_Atlas.csv', usecols=['Node #', 'Psych Test',
                                                        'Psych Test 2',
                                                        'Psych Test 3',
                                                        'Psych Test 4',
@@ -176,7 +176,7 @@ store_dir_path = join(dataset_path, "stats")
 if(not exists(store_dir_path)):
     mkdir(store_dir_path)
 
-out_df.to_csv(join(store_dir_path, 'output.csv'))
+out_df.to_csv(join(store_dir_path, 'output.csv'), index=False)
 # out_cn_df.to_csv(os.path.join(store_dir_path,
 #                               'cognitively_normal_percolation_stats.csv'),
 #                  index=False)

@@ -22,6 +22,7 @@ library('reticulate')
 library('RcppCNPy')
 library('progress')
 
+sink(file = "/dev/null", append = FALSE, type = c("output", "message"), split = FALSE)
  
 option_list = list(
   make_option(c("-d", "--dataset"), default=NULL, type="character",
@@ -69,8 +70,8 @@ for (scan_path in scan_paths) {
 
 	adj_mat_path <- file.path(scan_path, "adj_mat.npy")
 	percolation_path <- file.path(scan_path, "percolation.npy")
-	npySave(adj_mat_path, adj_mat$estimate)
-	npySave(percolation_path, matrices$percolation)
+	npySave(adj_mat_path, adj_mat$estimate, checkPath=FALSE)
+	npySave(percolation_path, matrices$percolation, checkPath=FALSE)
 	pb$tick()
 }
 
