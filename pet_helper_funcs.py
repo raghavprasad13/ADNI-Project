@@ -1,3 +1,9 @@
+# This script conatins functions to be used in
+# pet_to_network.r to generate brain networks
+#
+# Author: Raghav Prasad
+# Last modified: 30 June 2020
+
 import numpy as np
 import nibabel as nib
 

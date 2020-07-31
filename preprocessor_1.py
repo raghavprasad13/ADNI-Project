@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 # coding: utf-8
 #
+# This script aids in the preprocessing of the ADNI
+# dataset by extracting and creating the appropriate
+# directory structure
+#
 # Author: Raghav Prasad
 # Last modified: 1 July 2020
 

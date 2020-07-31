@@ -1,16 +1,12 @@
 #!/usr/local/bin/Rscript --vanilla
 # Usage pet_to_network.r -d path/to/dataset
 # 
-# Requirements:
-# * optparse
-# * ppcor
-# * reticulate
-# * RcppCNPy
-# * progress
+# This script generates brain networks using partial
+# correlation calculation and helper functions
+# from pet_helper_funcs.py 
 # 
-# Last updated: 3 May 2020
+# Last updated: 30 July 2020
 # Author: Raghav Prasad
-
 
 to_install <- c("optparse", "ppcor", "reticulate", "RcppCNPy", "progress")
 
@@ -74,7 +70,3 @@ for (scan_path in scan_paths) {
 	npySave(percolation_path, matrices$percolation, checkPath=FALSE)
 	pb$tick()
 }
-
-
-
-
