@@ -87,12 +87,18 @@ for (scan in npiqDf$PET_ID) {
 
         if(!is.null(mmsePcValue)) {
             entryM <- paste(roi_name, ": ", mmsePcValue)
-            entryMmse <- paste(entryMmse, ", ", entryM)
+            if(nchar(entryMmse) > 0)
+                entryMmse <- paste(entryMmse, ", ", entryM)
+            else
+                entryMmse <- entryM
         }
 
         if(!is.null(npiqPcValue)) {
             entryN <- paste(roi_name, ":", npiqPcValue)
-            entryNpiq <- paste(entryNpiq, ", ", entryN)
+            if(nchar(entryNpiq) > 0)
+                entryNpiq <- paste(entryNpiq, ", ", entryN)
+            else
+                entryNpiq <- entryN
         }
     }
 

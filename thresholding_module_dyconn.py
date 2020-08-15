@@ -59,7 +59,7 @@ scan_paths = list(filter(lambda path: exists(join(path, 'adj_mat.npy')),
 
 if __name__ == '__main__':
     with Pool() as p:
-        with tqdm(total=len(scan_paths)) as pbar:
+        with tqdm(total=len(scan_paths), desc='Networks thresholded') as pbar:
             for scan_path, thresholded_net in p.imap_unordered(get_thresholded,
                                                                scan_paths):
                 func_net_after = nx.from_numpy_matrix(thresholded_net)

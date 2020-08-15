@@ -197,7 +197,7 @@ result_npiq = {}
 
 if __name__ == '__main__':
     with Pool() as p:
-        with tqdm(total=len(scan_paths)) as pbar:
+        with tqdm(total=len(scan_paths), desc='Networks analyzed') as pbar:
             for key, value in p.imap_unordered(obtain_stats, scan_paths):
                 if value is not None:
                     result_mmse.update({key: value[0]})
