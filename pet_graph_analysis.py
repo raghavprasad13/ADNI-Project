@@ -8,7 +8,7 @@
 # a CSV. For now, this does not compute NPI-Q PC values.
 #
 # Author: Raghav Prasad
-# Last modified: 31 July 2020
+# Last modified: 14 August 2020
 
 import numpy as np
 import pandas as pd
@@ -33,30 +33,50 @@ determine the mapping between the nodes and the anatomical regions
 they represent. This mapping will be attached to each of the network
 instances created in this script
 """
-tree = ET.parse(FSLDIR+"/data/atlases/Talairach.xml")
+tree = ET.parse(FSLDIR+"/data/atlases/Juelich.xml")
 root = tree.getroot()
 
-labels = root.findall('data')[0].findall('label')[1:]
+labels = root.findall('data')[0].findall('label')
 
-list_of_attribs = sorted(list(labels[0].attrib.keys()))[1:]
+list_of_attribs = sorted(list(labels[0].attrib.keys()))
 list_of_attribs.append('Area')
 
 psych_tests = ['MMSE', 'NPI-Q']
-atlas_df = pd.read_csv('Talairach_Atlas_MMSE_NPIQ.csv',
+atlas_df = pd.read_csv('Juelich_MMSE_NPIQ.csv',
                        usecols=['Node #', 'Anatomical Region', 'Test'])
 
 psych_test_nodes = {psych_test: [atlas_df.iloc[ind]['Node #']
                                  for ind in atlas_df.index
                                  if atlas_df.iloc[ind]['Test'] in [psych_test,
                                                                    'Both']]
-                    for psych_test in psych_tests[0:1]}
-# Note the list slicing on psych_tests on line 41
-# This is because we are only using MMSE for now
-# We will incorporate NPI-Q later
+                    for psych_test in psych_tests}
 
 
-def calculate_percolation(matrix, percolation_mat_path,
-                          psych_test=None, threshold=0.4):
+def export_csv(result_dict, psych_test='MMSE'):
+    global atlas_df, dataset_path
+
+    out_header = ['Mean percolation centrality', ]
+    out_header.extend([atlas_df.iloc[ind]['Anatomical Region']
+                       for ind in atlas_df.index
+                       if atlas_df.iloc[ind]['Test'] in [psych_test, 'Both']])
+
+    out_df = pd.DataFrame.from_dict(result_dict, orient='index',
+                                    columns=out_header)
+    out_df.reset_index(inplace=True)
+    out_df.rename(columns={'index': 'PET_ID'}, inplace=True)
+
+    store_dir_path = join(dataset_path, "stats")
+    if not exists(store_dir_path):
+        mkdir(store_dir_path)
+
+    export_csv_name = 'output_mmse.csv'
+    if psych_test == 'NPI-Q':
+        export_csv_name = 'output_npiq.csv'
+
+    out_df.to_csv(join(store_dir_path, export_csv_name), index=False)
+
+
+def calculate_percolation(matrix, percolation_mat_path, psych_test=None):
     """
     Returns the global mean percolation centrality of a graph
     created from an adjacency matrix and nodal percolation
@@ -71,10 +91,6 @@ def calculate_percolation(matrix, percolation_mat_path,
                           Array containing percolation values of
                           all the n nodes
 
-    threshold: float, optional[default=0.4]
-               A thresholding constant which will cause
-               all edge weights < threshold to be reassigned to 0
-               Defaults to 0 if psych_test is not None
     Returns
     -------
     perc_centrality_list: list
@@ -88,17 +104,12 @@ def calculate_percolation(matrix, percolation_mat_path,
     """
     global labels, list_of_attribs, psych_test_nodes
 
-    if psych_test is not None:
-        threshold = 0
-
     matrix_copy = matrix.copy()
-    matrix_copy[abs(matrix_copy) < threshold] = 0
 
     percolation = np.load(percolation_mat_path)
-
     # Here we create a dictionary mapping nodes to their attributes
     # such as name of anatomical regions, percolation states, etc.
-    node_attribs = {int(label.attrib['index'])-1: {key: int(label.attrib[key])
+    node_attribs = {int(label.attrib['index']): {key: int(label.attrib[key])
                     if key != 'Area' else label.text
                     for key in list_of_attribs} for label in labels}
 
@@ -142,15 +153,28 @@ def obtain_stats(scan_path):
                                calculated PC values
     """
     global psych_tests
-    matrix = np.load(join(scan_path, 'adj_mat.npy'))
+    scan_id = scan_path.split('/')[-1]
+
+    adj_mat_path = join(scan_path, 'adj_mat_thresh.npy')
+    if not exists(adj_mat_path):
+        return (scan_id, None)
+
+    matrix = np.load(adj_mat_path)
     percolation_mat_path = join(scan_path, 'percolation.npy')
-    scan_id = scan_path.split('/')[-2]
 
-    node_perc_list = [calculate_percolation(matrix, percolation_mat_path), ]
-    node_perc_list.extend(calculate_percolation(matrix, percolation_mat_path,
-                                                psych_test='MMSE'))
+    mean_pc = calculate_percolation(matrix, percolation_mat_path)
 
-    return (scan_id, node_perc_list)
+    node_perc_list_mmse = [mean_pc, ]
+    node_perc_list_mmse.extend(calculate_percolation(matrix,
+                                                     percolation_mat_path,
+                                                     psych_test='MMSE'))
+
+    node_perc_list_npiq = [mean_pc, ]
+    node_perc_list_npiq.extend(calculate_percolation(matrix,
+                                                     percolation_mat_path,
+                                                     psych_test='NPI-Q'))
+
+    return (scan_id, [node_perc_list_mmse, node_perc_list_npiq])
 
 
 ap = argparse.ArgumentParser()
@@ -168,29 +192,17 @@ scan_paths = list(filter(lambda path: 'Metadata' not in path, scan_paths))
 scan_paths = list(filter(lambda path: exists(join(path, 'adj_mat.npy')),
                          scan_paths))
 
-result = {}
+result_mmse = {}
+result_npiq = {}
 
 if __name__ == '__main__':
     with Pool() as p:
         with tqdm(total=len(scan_paths)) as pbar:
             for key, value in p.imap_unordered(obtain_stats, scan_paths):
-                result.update({key: value})
+                if value is not None:
+                    result_mmse.update({key: value[0]})
+                    result_npiq.update({key: value[1]})
                 pbar.update()
 
-# Constructing the dataframe for the output CSV
-out_header = ['PET_ID', ]
-out_header.extend([atlas_df.iloc[ind]['Anatomical Region']
-                   for ind in atlas_df.index
-                   if atlas_df.iloc[ind]['Test'] in ['MMSE', 'Both']])
-
-
-out_df = pd.DataFrame.from_dict(result, orient='index', columns=out_header)
-out_df.reset_index(inplace=True)
-out_df.rename(columns={'index': 'PET_ID'}, inplace=True)
-
-
-store_dir_path = join(dataset_path, "stats")
-if not exists(store_dir_path):
-    mkdir(store_dir_path)
-
-out_df.to_csv(join(store_dir_path, 'output.csv'), index=False)
+    export_csv(result_mmse)
+    export_csv(result_npiq, psych_test='NPI-Q')

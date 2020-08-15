@@ -1,12 +1,16 @@
 #!/usr/local/bin/Rscript --vanilla
 # Usage pet_to_network.r -d path/to/dataset
 # 
-# This script generates brain networks using partial
-# correlation calculation and helper functions
-# from pet_helper_funcs.py 
+# Requirements:
+# * optparse
+# * ppcor
+# * reticulate
+# * RcppCNPy
+# * progress
 # 
-# Last updated: 30 July 2020
+# Last updated: 15 August 2020
 # Author: Raghav Prasad
+
 
 to_install <- c("optparse", "ppcor", "reticulate", "RcppCNPy", "progress")
 
@@ -18,7 +22,7 @@ library('reticulate')
 library('RcppCNPy')
 library('progress')
 
-sink(file = "/dev/null", append = FALSE, type = c("output", "message"), split = FALSE)
+sink(file = "/dev/null", append = FALSE, type = c("output", "message"), split = FALSE)	# prevents verbose output
  
 option_list = list(
   make_option(c("-d", "--dataset"), default=NULL, type="character",
@@ -38,9 +42,9 @@ if(FSLDIR == '')
 	stop("Seems like you don't have FSL installed", call.=FALSE);
 
 dataset_path <- opt$dataset
-# print(dataset_path)
-parcel_path <- paste(FSLDIR, "/data/atlases/Talairach/Talairach-labels-2mm.nii.gz", sep='')
-scan_paths <- Sys.glob(file.path(opt$dataset, "*"))
+
+parcel_path <- paste(FSLDIR, "/data/atlases/Juelich/Juelich-maxprob-thr25-2mm.nii.gz", sep='')
+scan_paths <- Sys.glob(file.path(dataset_path, "*"))
 scan_paths <- scan_paths[- grep("Metadata", scan_paths, value=FALSE)]
 
 for(i in 1:length(scan_paths)) {

@@ -15,7 +15,9 @@ set.seed(1234)
 options(stringsAsFactors=FALSE)
 
 #-------------------------------------------------------------------------------
+to_install <- c("checkmate", "igraph", "parallel")
 
+install.packages(setdiff(to_install, rownames(installed.packages())), configure.args='--host=host', repos = "https://mirrors.ustc.edu.cn/CRAN/")
 
 library(checkmate)
 library(igraph)

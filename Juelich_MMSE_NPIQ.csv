@@ -1,0 +1,122 @@
+Node #,Voxel_X,Voxel_Y,Voxel_Z,Anatomical Region,Test
+0,125,75,107,GM Anterior intra-parietal sulcus hIP1 L,MMSE
+1,53,78,108,GM Anterior intra-parietal sulcus hIP1 R,MMSE
+2,135,89,109,GM Anterior intra-parietal sulcus hIP2 L,MMSE
+3,48,90,120,GM Anterior intra-parietal sulcus hIP2 R,MMSE
+4,119,69,120,GM Anterior intra-parietal sulcus hIP3 L,MMSE
+5,54,80,122,GM Anterior intra-parietal sulcus hIP3 R,MMSE
+6,113,118,62,GM Amygdala_centromedial group L,NPI-Q
+7,64,119,63,GM Amygdala_centromedial group R,NPI-Q
+8,113,120,49,GM Amygdala_laterobasal group L,NPI-Q
+9,64,119,51,GM Amygdala_laterobasal group R,NPI-Q
+10,109,122,54,GM Amygdala_superficial group L,NPI-Q
+11,67,122,61,GM Amygdala_superficial group R,NPI-Q
+12,142,137,95,GM Broca's area BA44 L,Both
+13,36,141,87,GM Broca's area BA44 R,Both
+14,142,151,85,GM Broca's area BA45 L,Both
+15,36,152,79,GM Broca's area BA45 R,Both
+16,119,110,53,GM Hippocampus cornu ammonis L,MMSE
+17,56,111,53,GM Hippocampus cornu ammonis R,MMSE
+18,115,121,35,GM Hippocampus entorhinal cortex L,MMSE
+19,64,125,34,GM Hippocampus entorhinal cortex R,MMSE
+20,119,109,53,GM Hippocampus dentate gyrus L,MMSE
+21,58,110,54,GM Hippocampus dentate gyrus R,MMSE
+22,107,117,50,GM Hippocampus hippocampal-amygdaloid transition area L,Both
+23,71,117,51,GM Hippocampus hippocampal-amygdaloid transition area R,Both
+24,112,115,43,GM Hippocampus subiculum L,MMSE
+25,64,107,54,GM Hippocampus subiculum R,MMSE
+26,146,86,107,GM Inferior parietal lobule PF L,Both
+27,28,92,101,GM Inferior parietal lobule PF R,Both
+28,140,84,100,GM Inferior parietal lobule PFcm L,Both
+29,40,93,96,GM Inferior parietal lobule PFcm R,Both
+30,141,68,106,GM Inferior parietal lobule PFm L,Both
+31,34,81,109,GM Inferior parietal lobule PFm R,Both
+32,148,103,96,GM Inferior parietal lobule PFop L,Both
+33,37,108,100,GM Inferior parietal lobule PFop R,Both
+34,145,100,108,GM Inferior parietal lobule PFt L,Both
+35,36,101,111,GM Inferior parietal lobule PFt R,Both
+36,142,69,104,GM Inferior parietal lobule Pga L,Both
+37,37,71,104,GM Inferior parietal lobule Pga R,Both
+38,133,54,101,GM Inferior parietal lobule PGp L,Both
+39,42,60,102,GM Inferior parietal lobule PGp R,Both
+40,137,105,79,GM Primary auditory cortex TE1.0 L,Both
+41,39,114,77,GM Primary auditory cortex TE1.0 R,Both
+42,131,96,84,GM Primary auditory cortex TE1.1 L,Both
+43,49,100,83,GM Primary auditory cortex TE1.1 R,Both
+44,143,113,76,GM Primary auditory cortex TE1.2 L,Both
+45,34,120,76,GM Primary auditory cortex TE1.2 R,Both
+46,100,100,140,GM Primary motor cortex BA4a L,Both
+47,82,97,142,GM Primary motor cortex BA4a R,Both
+48,119,96,127,GM Primary motor cortex BA4p L,Both
+49,56,103,120,GM Primary motor cortex BA4p R,Both
+50,141,105,121,GM Primary somatosensory cortex BA1 L,MMSE
+51,36,109,119,GM Primary somatosensory cortex BA1 R,MMSE
+52,139,100,118,GM Primary somatosensory cortex BA2 L,MMSE
+53,63,86,126,GM Primary somatosensory cortex BA2 R,MMSE
+54,123,99,118,GM Primary somatosensory cortex BA3a L,MMSE
+55,56,105,114,GM Primary somatosensory cortex BA3a R,MMSE
+56,128,99,125,GM Primary somatosensory cortex BA3b L,MMSE
+57,37,115,109,GM Primary somatosensory cortex BA3b R,MMSE
+58,138,102,91,GM Secondary somatosensory cortex / Parietal operculum OP1 L,Both
+59,43,99,94,GM Secondary somatosensory cortex / Parietal operculum OP1 R,Both
+60,126,103,91,GM Secondary somatosensory cortex / Parietal operculum OP2 L,Both
+61,54,105,90,GM Secondary somatosensory cortex / Parietal operculum OP2 R,Both
+62,132,115,89,GM Secondary somatosensory cortex / Parietal operculum OP3 L,Both
+63,50,112,93,GM Secondary somatosensory cortex / Parietal operculum OP3 R,Both
+64,147,117,85,GM Secondary somatosensory cortex / Parietal operculum OP4 L,Both
+65,28,118,85,GM Secondary somatosensory cortex / Parietal operculum OP4 R,Both
+66,105,88,116,GM Superior parietal lobule 5Ci L,MMSE
+67,79,94,117,GM Superior parietal lobule 5Ci R,MMSE
+68,108,82,139,GM Superior parietal lobule 5L L,MMSE
+69,78,76,143,GM Superior parietal lobule 5L R,MMSE
+70,99,84,130,GM Superior parietal lobule 5M L,MMSE
+71,83,80,132,GM Superior parietal lobule 5M R,MMSE
+72,111,69,135,GM Superior parietal lobule 7A L,MMSE
+73,61,68,133,GM Superior parietal lobule 7A R,MMSE
+74,94,51,107,GM Superior parietal lobule 7M L,MMSE
+75,86,53,115,GM Superior parietal lobule 7M R,MMSE
+76,124,78,128,GM Superior parietal lobule 7PC L,MMSE
+77,59,83,124,GM Superior parietal lobule 7PC R,MMSE
+78,99,53,126,GM Superior parietal lobule 7P L,MMSE
+79,78,53,125,GM Superior parietal lobule 7P R,MMSE
+80,99,30,74,GM Visual cortex V1 BA17 L,MMSE
+81,75,34,76,GM Visual cortex V1 BA17 R,MMSE
+82,98,33,66,GM Visual cortex V2 BA18 L,MMSE
+83,75,42,65,GM Visual cortex V2 BA18 R,MMSE
+84,105,43,66,GM Visual cortex V3V L,MMSE
+85,68,47,64,GM Visual cortex V3V R,MMSE
+86,117,42,61,GM Visual cortex V4 L,MMSE
+87,59,50,62,GM Visual cortex V4 R,MMSE
+88,132,52,76,GM Visual cortex V5 L,MMSE
+89,41,60,78,GM Visual cortex V5 R,MMSE
+90,102,112,138,GM Premotor cortex BA6 L,Both
+91,77,110,143,GM Premotor cortex BA6 R,Both
+92,41,112,76,WM Acoustic radiation R,Both
+93,131,100,72,WM Acoustic radiation L,Both
+94,89,90,87,WM Callosal body,Both
+95,81,84,98,WM Cingulum R,Both
+96,97,109,105,WM Cingulum L,Both
+97,65,104,122,WM Corticospinal tract R,Both
+98,117,109,109,WM Corticospinal tract L,Both
+99,88,106,89,WM Fornix,Both
+100,56,134,66,WM Inferior occipito-frontal fascicle R,MMSE
+101,121,130,64,WM Inferior occipito-frontal fascicle L,MMSE
+102,65,104,63,GM Lateral geniculate body R,MMSE
+103,112,103,61,GM Lateral geniculate body L,MMSE
+104,87,118,57,GM Mamillary body,NPI-Q
+105,73,100,65,GM Medial geniculate body R,NPI-Q
+106,106,100,64,GM Medial geniculate body L,NPI-Q
+107,64,45,75,WM Optic radiation R,Both
+108,111,45,77,WM Optic radiation L,Both
+109,58,102,101,WM Superior longitudinal fascicle R,MMSE
+110,120,98,99,WM Superior longitudinal fascicle L,MMSE
+111,68,142,89,WM Superior occipito-frontal fascicle R,MMSE
+112,110,151,83,WM Superior occipito-frontal fascicle L,MMSE
+113,57,124,63,WM Uncinate fascicle R,Both
+114,121,123,62,WM Uncinate fascicle L,Both
+115,130,105,71,GM Insula Id1 L,NPI-Q
+116,48,107,67,GM Insula Id1 R,NPI-Q
+117,125,100,85,GM Insula Ig1 L,Both
+118,54,100,81,GM Insula Ig1 R,Both
+119,128,105,85,GM Insula Ig2 L,NPI-Q
+120,52,105,82,GM Insula Ig2 R,NPI-Q
