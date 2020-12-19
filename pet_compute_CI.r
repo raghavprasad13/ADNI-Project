@@ -62,8 +62,8 @@ mmseDf <- read.csv(file.path(datasetPath, 'stats', 'output_mmse.csv'))
 npiqDf <- read.csv(file.path(datasetPath, 'stats', 'output_npiq.csv'))
 
 petIds <- c()
-influentialNodeValuesMmse <- c()
-influentialNodeValuesNpiq <- c()
+influentialNodeValues <- c()
+# influentialNodeValuesNpiq <- c()
 
 pb <- progress_bar$new(
 	format = "Networks scanned (:current/:total) [:bar] (:percent) in :elapsed, eta: :eta",
@@ -82,38 +82,35 @@ for (scan in npiqDf$PET_ID) {
         roi_name <- subset(juelichAtlasDf, node_num == num)$roi
         roi_name <- str_replace_all(roi_name, " ", ".")
 
-        mmsePcValue <- subset(mmseDf, PET_ID == scan)[[roi_name]]
-        npiqPcValue <- subset(npiqDf, PET_ID == scan)[[roi_name]]
+        # mmsePcValue <- subset(mmseDf, PET_ID == scan)[[roi_name]]
+        # npiqPcValue <- subset(npiqDf, PET_ID == scan)[[roi_name]]
 
-        if(!is.null(mmsePcValue)) {
-            entryM <- paste(roi_name, ": ", mmsePcValue)
-            if(nchar(entryMmse) > 0)
-                entryMmse <- paste(entryMmse, ", ", entryM)
-            else
-                entryMmse <- entryM
-        }
+        if(nchar(entryMmse) > 0)
+            entryMmse <- paste(entryMmse, ",", roi_name)
+        else
+            entryMmse <- roi_name
 
-        if(!is.null(npiqPcValue)) {
-            entryN <- paste(roi_name, ":", npiqPcValue)
-            if(nchar(entryNpiq) > 0)
-                entryNpiq <- paste(entryNpiq, ", ", entryN)
-            else
-                entryNpiq <- entryN
-        }
+        # if(!is.null(npiqPcValue)) {
+        #     entryN <- paste(roi_name, ":", npiqPcValue)
+        #     if(nchar(entryNpiq) > 0)
+        #         entryNpiq <- paste(entryNpiq, ", ", entryN)
+        #     else
+        #         entryNpiq <- entryN
+        # }
     }
 
-    influentialNodeValuesMmse <- append(influentialNodeValuesMmse, entryMmse)
-    influentialNodeValuesNpiq <- append(influentialNodeValuesNpiq, entryNpiq)
+    influentialNodeValues <- append(influentialNodeValues, entryMmse)
+    # influentialNodeValuesNpiq <- append(influentialNodeValuesNpiq, entryNpiq)
     pb$tick()
 }
 
-influentialDataMmseDf <- data.frame(petIds, influentialNodeValuesMmse)
-colnames(influentialDataMmseDf)[1] <- 'PET_ID'
-colnames(influentialDataMmseDf)[2] <- 'Influential node values'
+influentialDataDf <- data.frame(petIds, influentialNodeValues)
+colnames(influentialDataDf)[1] <- 'PET_ID'
+colnames(influentialDataDf)[2] <- 'Influential node values'
 
-influentialDataNpiqDf <- data.frame(petIds, influentialNodeValuesNpiq)
-colnames(influentialDataNpiqDf)[1] <- 'PET_ID'
-colnames(influentialDataNpiqDf)[2] <- 'Influential node values'
+# influentialDataNpiqDf <- data.frame(petIds, influentialNodeValuesNpiq)
+# colnames(influentialDataNpiqDf)[1] <- 'PET_ID'
+# colnames(influentialDataNpiqDf)[2] <- 'Influential node values'
 
-write.csv(influentialDataMmseDf, file.path(datasetPath, "stats", "influential_mmse.csv"))
-write.csv(influentialDataNpiqDf, file.path(datasetPath, "stats", "influential_npiq.csv"))
+write.csv(influentialDataDf, file.path(datasetPath, "stats", "influential.csv"))
+# write.csv(influentialDataNpiqDf, file.path(datasetPath, "stats", "influential_npiq.csv"))

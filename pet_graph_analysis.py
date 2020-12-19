@@ -51,6 +51,8 @@ psych_test_nodes = {psych_test: [atlas_df.iloc[ind]['Node #']
                                                                    'Both']]
                     for psych_test in psych_tests}
 
+is_FDG = False
+
 
 def export_csv(result_dict, psych_test='MMSE'):
     global atlas_df, dataset_path
@@ -102,11 +104,13 @@ def calculate_percolation(matrix, percolation_mat_path, psych_test=None):
                           Global mean percolation centrality
                           Returned when psych_test is None
     """
-    global labels, list_of_attribs, psych_test_nodes
+    global labels, list_of_attribs, psych_test_nodes, is_FDG
 
     matrix_copy = matrix.copy()
 
     percolation = np.load(percolation_mat_path)
+    if is_FDG:
+        percolation = 1. / percolation
     # Here we create a dictionary mapping nodes to their attributes
     # such as name of anatomical regions, percolation states, etc.
     node_attribs = {int(label.attrib['index']): {key: int(label.attrib[key])
@@ -186,6 +190,9 @@ if args['dataset'][-1] == '/':
     args['dataset'] = args['dataset'][:len(args['dataset'])-1]
 
 dataset_path = args['dataset']
+if 'FDG' in dataset_path:
+    is_FDG = True
+
 scan_paths = glob(join(dataset_path, '*'))
 
 scan_paths = list(filter(lambda path: 'Metadata' not in path, scan_paths))

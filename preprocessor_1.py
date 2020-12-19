@@ -6,6 +6,7 @@
 
 from subprocess import check_call, CalledProcessError
 import zipfile
+from zipfile import zlib
 import argparse
 from os import remove, mkdir
 from os.path import join, exists
@@ -32,14 +33,19 @@ with tqdm(total=len(zipfiles), desc='Files unzipped') as pbar:
         with zipfile.ZipFile(zfile, 'r') as zf:
             try:
                 if zfile.split('/')[-1].split('.')[0].split('_')[-1] != 'metadata':
+                    # key = zfile.split('/')[-1].split('.')[0].split('&')[0].split('=')[-1]
+                    # last = zfile.split('/')[-1].split('.')[0].split('=')[-1]
                     zf.extractall(join(dataset_path,
                                   zfile.split('/')[-1].split('.')[0]))
+                    # zf.extractall(join(dataset_path, key+'_'+last))
                 else:
                     zf.extractall(join(dataset_path, 'Metadata'))
             except zipfile.BadZipFile:
                 print('WARNING: Bad zip file,', zfile.split('/')[-1])
             except FileNotFoundError:
                 print('ERROR: File ', zfile, 'not found')
+            except zlib.error:
+                pass
             finally:
                 if exists(zfile):
                     remove(zfile)
