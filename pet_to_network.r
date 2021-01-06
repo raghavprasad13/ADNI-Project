@@ -65,12 +65,21 @@ for (scan_path in scan_paths) {
 	if(!file.exists(file.path(scan_path, "out.nii.gz")))
 		next
 	matrices <- time_series_to_matrix(file.path(scan_path, "out.nii.gz"), parcel_path)
+
+	# matrices$pre_adj has dimensions num_nodes * time_series_len
+	# ppcor.pcor constructs an adjacency matrix of size equal to the number of columns in matrices$pre_adj
+	# Thus, in order to get an adjacency matrix of size num_nodes, matrices$pre_adj is transposed
+
 	pre_adj_transpose <- t(matrices$pre_adj)
-	adj_mat <- pcor(pre_adj_transpose, "pearson")
+	adj_mat_part <- pcor(pre_adj_transpose, "pearson")		# partial correlation matrix
+	adj_mat_corr <- cor(pre_adj_transpose)					# bivariate correlation matrix
+
+	corr_zero_indices <- which(adj_mat_corr == 0)			# Get the indices of the zero elements in the bivariate correlation matrix
+	adj_mat_part$estimate[corr_zero_indices] = 0			# Set the elements of the partial correlation matrix indexed by corr_zero_indices to zero
 
 	adj_mat_path <- file.path(scan_path, "adj_mat.npy")
 	percolation_path <- file.path(scan_path, "percolation.npy")
-	npySave(adj_mat_path, adj_mat$estimate, checkPath=FALSE)
+	npySave(adj_mat_path, adj_mat_part$estimate, checkPath=FALSE)
 	npySave(percolation_path, matrices$percolation, checkPath=FALSE)
 	pb$tick()
 }

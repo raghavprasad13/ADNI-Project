@@ -14,7 +14,7 @@
 # * gnu-time
 # * GNU parallel (different from the parallel implemented in the moreutils package)
 # 
-# Last updated: 23 April 2020
+# Last updated: 21 December 2020
 # Author: Raghav Prasad
 
 source $FREESURFER_HOME/SetUpFreeSurfer.sh
@@ -49,17 +49,18 @@ apply_smoothing_filter() {
 	# verify_correctness $1
 }
 
-registration() {
+registration_and_spatial_realignment() {
 	if [[ "$1" != "Metadata" ]]; then
-		if [[ -e $1/combined.nii.gz ]]; then
-			$FREESURFER_HOME/bin/mri_vol2vol --mni152reg --mov $1/combined.nii.gz --o $1/mni.nii.gz >/dev/null 2>&1
-			apply_smoothing_filter $1
+		if [[ -e $1/combined_suv.nii.gz ]]; then
+			$FREESURFER_HOME/bin/mri_vol2vol --mni152reg --mov $1/combined_suv.nii.gz --o $1/mni.nii.gz >/dev/null 2>&1
+			$FSLDIR/bin/mcflirt -in $1/mni.nii.gz -meanvol -out $1/out >/dev/null 2>&1
 		fi
 	fi
 }
 
-export -f registration
-export -f apply_smoothing_filter
+export -f registration_and_spatial_realignment
+# export -f apply_smoothing_filter
+# export -f spatial_realignment
 # export -f verify_correctness
 
 if [[ $(echo -n $1|tail -c1) = "/" ]];
@@ -69,7 +70,7 @@ else
 	DATASET_DIR=$1
 fi
 
-ls -d "$DATASET_DIR"/* | grep -v "Metadata" | parallel -j+0 --progress --eta registration {}
+ls -d "$DATASET_DIR"/* | grep -v "Metadata" | parallel -j+0 --progress --eta registration_and_spatial_realignment {}
 
 # SCAN_PATHS=$(ls -d "$DATASET_DIR"/*/*/pet1)
 
