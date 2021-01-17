@@ -2,6 +2,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 from sklearn import linear_model
 from sklearn.model_selection import KFold
+from sklearn.metrics import r2_score
 import statsmodels.api as sm
 import statsmodels
 
@@ -86,19 +87,23 @@ def loocv_loop(X, y, mode='ridge', alpha=2):
         sum_sq_errors += sq_error
 
     val_rmse = np.sqrt(sum_sq_errors / N)
+    val_r2 = r2_score(actual, pred)
     val_stdev = np.std(pred)
     print('val rmse: ', val_rmse)   
+    print('val r2: ', val_r2)  
     print('val stdev: ', val_stdev)
 
     clf.fit(X, y)
     pred_y_train = clf.predict(X)
     sq_errors = (pred_y_train - y)**2
     train_rmse = np.sqrt(np.sum(sq_errors) / N)
+    train_r2 = r2_score(y, pred_y_train)
     train_stdev = np.std(pred_y_train)
     print('train rmse: ', train_rmse)   
+    print('train r2: ', train_r2) 
     print('train stdev: ', train_stdev)
 
-    return train_rmse, val_rmse, train_stdev, val_stdev
+    return train_rmse, val_rmse, train_r2, val_r2, train_stdev, val_stdev
 
 radioisotopes = ['AV45', 'PiB']
 
@@ -110,10 +115,14 @@ for mode in ['ridge', 'lasso']:
 	print("Mode - ", mode)
 	TRAIN_av45_rmse_list = []
 	TRAIN_pib_rmse_list = []
+	TRAIN_av45_r2_list = []
+	TRAIN_pib_r2_list = []
 	TRAIN_av45_stdev_list = []
 	TRAIN_pib_stdev_list = []
 	VAL_av45_rmse_list = []
 	VAL_pib_rmse_list = []
+	VAL_av45_r2_list = []
+	VAL_pib_r2_list = []
 	VAL_av45_stdev_list = []
 	VAL_pib_stdev_list = []
 	for radioisotope in radioisotopes:
@@ -121,16 +130,20 @@ for mode in ['ridge', 'lasso']:
 		X, y = get_x_and_y(radioisotope)
 		for alpha in alpha_range:
 			print("alpha: ", alpha)
-			train_rmse, val_rmse, train_stdev, val_stdev = loocv_loop(X, y, 'ridge', alpha)
+			train_rmse, val_rmse, train_r2, val_r2, train_stdev, val_stdev = loocv_loop(X, y, 'ridge', alpha)
 			if radioisotope == 'AV45':
 				TRAIN_av45_rmse_list.append(train_rmse)
+				TRAIN_av45_r2_list.append(train_r2)
 				TRAIN_av45_stdev_list.append(train_stdev)
 				VAL_av45_rmse_list.append(val_rmse)
+				VAL_av45_r2_list.append(val_r2)
 				VAL_av45_stdev_list.append(val_stdev)
 			elif radioisotope == 'PiB':
 				TRAIN_pib_rmse_list.append(train_rmse)
+				TRAIN_pib_r2_list.append(train_r2)
 				TRAIN_pib_stdev_list.append(train_stdev)
 				VAL_pib_rmse_list.append(val_rmse)
+				VAL_pib_r2_list.append(val_r2)
 				VAL_pib_stdev_list.append(val_stdev)
 	plt.figure()
 	plt.plot(alpha_range, TRAIN_av45_rmse_list, 'blue')
@@ -138,6 +151,25 @@ for mode in ['ridge', 'lasso']:
 	plt.xlabel('alpha (' + mode + ')' )
 	plt.ylabel('Prediction RMSE (TRAIN set and LOOCV)')
 	plt.title('AV45 - Train and Val RMSE; Mode: '+ mode)
+	plt.legend(['TRAIN', 'VAL'])
+	plt.show()
+
+	plt.figure()
+	plt.plot(alpha_range, TRAIN_av45_r2_list, 'blue')
+	plt.plot(alpha_range, VAL_av45_r2_list, 'orange')
+	plt.xlabel('alpha (' + mode + ')' )
+	plt.ylabel('Prediction R2 score (TRAIN set and LOOCV)')
+	plt.title('AV45 - Train and Val R2 score; Mode: '+ mode)
+	plt.legend(['TRAIN', 'VAL'])
+	plt.show()
+
+
+	plt.figure()
+	plt.plot(alpha_range, TRAIN_av45_stdev_list, 'blue')
+	plt.plot(alpha_range, VAL_av45_stdev_list, 'orange')
+	plt.xlabel('alpha (' + mode + ')' )
+	plt.ylabel('Prediction std deviation (TRAIN set and LOOCV)')
+	plt.title('AV45 - Train and Val prediction std deviation; Mode: '+ mode)
 	plt.legend(['TRAIN', 'VAL'])
 	plt.show()
 
@@ -151,11 +183,11 @@ for mode in ['ridge', 'lasso']:
 	plt.show()
 
 	plt.figure()
-	plt.plot(alpha_range, TRAIN_av45_stdev_list, 'blue')
-	plt.plot(alpha_range, VAL_av45_stdev_list, 'orange')
+	plt.plot(alpha_range, TRAIN_pib_r2_list, 'blue')
+	plt.plot(alpha_range, VAL_pib_r2_list, 'orange')
 	plt.xlabel('alpha (' + mode + ')' )
-	plt.ylabel('Prediction std deviation (TRAIN set and LOOCV)')
-	plt.title('AV45 - Train and Val prediction std deviation; Mode: '+ mode)
+	plt.ylabel('Prediction R2 score (TRAIN set and LOOCV)')
+	plt.title('PIB - Train and Val R2 score; Mode: '+ mode)
 	plt.legend(['TRAIN', 'VAL'])
 	plt.show()
 
