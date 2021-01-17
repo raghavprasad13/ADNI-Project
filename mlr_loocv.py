@@ -1,4 +1,5 @@
 import numpy as np
+from matplotlib import pyplot as plt
 from sklearn import linear_model
 from sklearn.model_selection import KFold
 import statsmodels.api as sm
@@ -60,10 +61,10 @@ def get_x_and_y(radioisotope, psych_test='MMSE'):
     return (X_num, y_num)
 
 
-def loocv_loop(X, y, mode='ridge'):
-    clf = linear_model.Ridge(alpha=2)   # choose one of lasso (L1) or ridge (L2), vary alpha, and check rmse
+def loocv_loop(X, y, mode='ridge', alpha=2):
+    clf = linear_model.Ridge(alpha=alpha)   # choose one of lasso (L1) or ridge (L2), vary alpha, and check rmse
     if mode == 'lasso':
-        clf = linear_model.Lasso(alpha=2)
+        clf = linear_model.Lasso(alpha=alpha)
 
     sum_sq_errors = 0
     N = len(X)
@@ -84,16 +85,85 @@ def loocv_loop(X, y, mode='ridge'):
         sq_error = (pred_y_val - y_val)**2
         sum_sq_errors += sq_error
 
-    rmse_val = np.sqrt(sum_sq_errors / N)
-    stdev = np.std(pred)
-    print('rmse_val: ', rmse_val)   # currently the dataset is random, so wouldn't make much sense
-    print('stdev: ', stdev)
+    val_rmse = np.sqrt(sum_sq_errors / N)
+    val_stdev = np.std(pred)
+    print('val rmse: ', val_rmse)   
+    print('val stdev: ', val_stdev)
 
+    clf.fit(X, y)
+    pred_y_train = clf.predict(X)
+    sq_errors = (pred_y_train - y)**2
+    train_rmse = np.sqrt(np.sum(sq_errors) / N)
+    train_stdev = np.std(pred_y_train)
+    print('train rmse: ', train_rmse)   
+    print('train stdev: ', train_stdev)
+
+    return train_rmse, val_rmse, train_stdev, val_stdev
 
 radioisotopes = ['AV45', 'PiB']
 
 df = None
+alpha_range = np.arange(1,30,1)
 
-for radioisotope in radioisotopes:
-    X, y = get_x_and_y(radioisotope)
-    loocv_loop(X, y)
+
+for mode in ['ridge', 'lasso']:
+	print("Mode - ", mode)
+	TRAIN_av45_rmse_list = []
+	TRAIN_pib_rmse_list = []
+	TRAIN_av45_stdev_list = []
+	TRAIN_pib_stdev_list = []
+	VAL_av45_rmse_list = []
+	VAL_pib_rmse_list = []
+	VAL_av45_stdev_list = []
+	VAL_pib_stdev_list = []
+	for radioisotope in radioisotopes:
+		print("Radioisotope:", radioisotope)
+		X, y = get_x_and_y(radioisotope)
+		for alpha in alpha_range:
+			print("alpha: ", alpha)
+			train_rmse, val_rmse, train_stdev, val_stdev = loocv_loop(X, y, 'ridge', alpha)
+			if radioisotope == 'AV45':
+				TRAIN_av45_rmse_list.append(train_rmse)
+				TRAIN_av45_stdev_list.append(train_stdev)
+				VAL_av45_rmse_list.append(val_rmse)
+				VAL_av45_stdev_list.append(val_stdev)
+			elif radioisotope == 'PiB':
+				TRAIN_pib_rmse_list.append(train_rmse)
+				TRAIN_pib_stdev_list.append(train_stdev)
+				VAL_pib_rmse_list.append(val_rmse)
+				VAL_pib_stdev_list.append(val_stdev)
+	plt.figure()
+	plt.plot(alpha_range, TRAIN_av45_rmse_list, 'blue')
+	plt.plot(alpha_range, VAL_av45_rmse_list, 'orange')
+	plt.xlabel('alpha (' + mode + ')' )
+	plt.ylabel('Prediction RMSE (TRAIN set and LOOCV)')
+	plt.title('AV45 - Train and Val RMSE; Mode: '+ mode)
+	plt.legend(['TRAIN', 'VAL'])
+	plt.show()
+
+	plt.figure()
+	plt.plot(alpha_range, TRAIN_pib_rmse_list, 'blue')
+	plt.plot(alpha_range, VAL_pib_rmse_list, 'orange')
+	plt.xlabel('alpha (' + mode + ')' )
+	plt.ylabel('Prediction RMSE (TRAIN set and LOOCV)')
+	plt.title('PiB - Train and Val RMSE; Mode: '+ mode)
+	plt.legend(['TRAIN', 'VAL'])
+	plt.show()
+
+	plt.figure()
+	plt.plot(alpha_range, TRAIN_av45_stdev_list, 'blue')
+	plt.plot(alpha_range, VAL_av45_stdev_list, 'orange')
+	plt.xlabel('alpha (' + mode + ')' )
+	plt.ylabel('Prediction std deviation (TRAIN set and LOOCV)')
+	plt.title('AV45 - Train and Val prediction std deviation; Mode: '+ mode)
+	plt.legend(['TRAIN', 'VAL'])
+	plt.show()
+
+	plt.figure()
+	plt.plot(alpha_range, TRAIN_pib_stdev_list, 'blue')
+	plt.plot(alpha_range, VAL_pib_stdev_list, 'orange')
+	plt.xlabel('alpha (' + mode + ')' )
+	plt.ylabel('Prediction std deviation (TRAIN set and LOOCV)')
+	plt.title('PiB - Train and Val prediction std deviation; Mode: '+ mode)	
+	plt.legend(['TRAIN', 'VAL'])
+	plt.show()
