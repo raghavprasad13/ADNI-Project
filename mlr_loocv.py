@@ -23,7 +23,7 @@ def lassoCV(X, y, alphas, cv=None):
     alphas: array-like; the alpha values to be tested
     cv: int or None; if None, then LOOCV, if int then KFold with cv number of splits
     '''
-    clf_lasso = linear_model.LassoCV(alphas=alphas, cv=cv).fit(X,y)
+    clf_lasso = linear_model.LassoCV(alphas=alphas, cv=cv).fit(X, y)
     return clf_lasso
 
 
@@ -32,7 +32,7 @@ def ridgeCV(X, y, alphas, cv=None):
     alphas: array-like; the alpha values to be tested
     cv: int or None; if None, then LOOCV, if int then KFold with cv number of splits
     '''
-    clf_ridge = linear_model.RidgeCV(alphas=alphas, cv=cv).fit(X,y)
+    clf_ridge = linear_model.RidgeCV(alphas=alphas, cv=cv).fit(X, y)
     return clf_ridge
 
 
@@ -99,8 +99,8 @@ def loocv_loop(X, y, mode='ridge', alpha=2):
     train_rmse = np.sqrt(np.sum(sq_errors) / N)
     train_r2 = r2_score(y, pred_y_train)
     train_stdev = np.std(pred_y_train)
-    print('train rmse: ', train_rmse)   
-    print('train r2: ', train_r2) 
+    print('train rmse: ', train_rmse)
+    print('train r2: ', train_r2)
     print('train stdev: ', train_stdev)
 
     return train_rmse, val_rmse, train_r2, val_r2, train_stdev, val_stdev
@@ -108,7 +108,7 @@ def loocv_loop(X, y, mode='ridge', alpha=2):
 radioisotopes = ['AV45', 'PiB']
 
 df = None
-alpha_range = np.arange(1,30,1)
+alpha_range = np.arange(0, 10, 0.1)
 
 
 for mode in ['ridge', 'lasso']:

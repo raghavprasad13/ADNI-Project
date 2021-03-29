@@ -12,12 +12,12 @@
 # Author: Raghav Prasad
 
 
-to_install <- c("optparse", "ppcor", "reticulate", "RcppCNPy", "progress")
+to_install <- c("optparse", "DensParcorr", "reticulate", "RcppCNPy", "progress")
 
 install.packages(setdiff(to_install, rownames(installed.packages())), repos = "https://mirrors.ustc.edu.cn/CRAN/")
 
 library("optparse")
-library("ppcor")
+library("DensParcorr")
 library('reticulate')
 library('RcppCNPy')
 library('progress')
@@ -67,21 +67,23 @@ for (scan_path in scan_paths) {
 	matrices <- time_series_to_matrix(file.path(scan_path, "out.nii.gz"), parcel_path)
 
 	# matrices$pre_adj has dimensions num_nodes * time_series_len
-	# ppcor.pcor constructs an adjacency matrix of size equal to the number of columns in matrices$pre_adj
+	# DensParcorr constructs an adjacency matrix of size equal to the number of columns in matrices$pre_adj
 	# Thus, in order to get an adjacency matrix of size num_nodes, matrices$pre_adj is transposed
-	
-	pre_adj_transpose <- t(matrices$pre_adj)
-	adj_mat_part <- pcor(pre_adj_transpose, "pearson")		# partial correlation matrix
-	adj_mat_corr <- cor(pre_adj_transpose)					# bivariate correlation matrix
 
-	corr_zero_indices <- which(adj_mat_corr == 0)			# Get the indices of the zero elements in the bivariate correlation matrix
-	adj_mat_part$estimate[corr_zero_indices] = 0			# Set the elements of the partial correlation matrix indexed by corr_zero_indices to zero
+	tryCatch({
+		pre_adj_transpose <- t(matrices$pre_adj)
+		dens_par_corr_data <- DensParcorr(pre_adj_transpose, TRUE)
 
-	adj_mat_path <- file.path(scan_path, "adj_mat.npy")
-	percolation_path <- file.path(scan_path, "percolation.npy")
-	npySave(adj_mat_path, adj_mat_part$estimate, checkPath=FALSE)
-	npySave(percolation_path, matrices$percolation, checkPath=FALSE)
-	
-	unlink('DensParcorr.output', recursive=TRUE)
+		adj_mat_part <- dens_par_corr_data$selected.partial.corr		# partial correlation matrix
+		adj_mat_corr <- cor(pre_adj_transpose)					        # bivariate correlation matrix
+
+		corr_zero_indices <- which(adj_mat_corr == 0)	# Get the indices of the zero elements in the bivariate correlation matrix
+		adj_mat_part[corr_zero_indices] = 0			    # Set the elements of the partial correlation matrix indexed by corr_zero_indices to zero
+
+		adj_mat_path <- file.path(scan_path, "adj_mat.npy")
+		percolation_path <- file.path(scan_path, "percolation.npy")
+		npySave(adj_mat_path, adj_mat_part, checkPath=FALSE)
+		npySave(percolation_path, matrices$percolation, checkPath=FALSE)
+	}, error=function(e){cat("ERROR:", scan_path, "\n")})
 	pb$tick()
 }

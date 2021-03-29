@@ -12,15 +12,18 @@
 
 import numpy as np
 import pandas as pd
-import networkx as nx
-import argparse
-from networkx.classes.function import selfloop_edges
 from tqdm import tqdm
-from glob import glob
+
+import networkx as nx
+from networkx.classes.function import selfloop_edges
+from networkx.algorithms.centrality import percolation_centrality, current_flow_betweenness_centrality, eigenvector_centrality_numpy, betweenness_centrality, load_centrality, closeness_centrality
+
 import xml.etree.ElementTree as ET
+from glob import glob
 from os.path import join, exists
 from os import mkdir, environ
 from multiprocessing import Pool
+import argparse
 
 try:
     FSLDIR = environ["FSLDIR"]  # make sure you have FSL installed
@@ -51,13 +54,17 @@ psych_test_nodes = {psych_test: [atlas_df.iloc[ind]['Node #']
                                                                    'Both']]
                     for psych_test in psych_tests}
 
-is_FDG = False
+metrics = {'pc': percolation_centrality,
+           'cfbc': current_flow_betweenness_centrality,
+           'ec': eigenvector_centrality_numpy,
+           'bc': betweenness_centrality,
+           'cc': closeness_centrality}
 
 
-def export_csv(result_dict, psych_test='MMSE'):
+def export_csv(result_dict, metric, psych_test='MMSE'):
     global atlas_df, dataset_path
 
-    out_header = ['Mean percolation centrality', ]
+    out_header = ['mean_' + metric, ]
     out_header.extend([atlas_df.iloc[ind]['Anatomical Region']
                        for ind in atlas_df.index
                        if atlas_df.iloc[ind]['Test'] in [psych_test, 'Both']])
@@ -71,14 +78,14 @@ def export_csv(result_dict, psych_test='MMSE'):
     if not exists(store_dir_path):
         mkdir(store_dir_path)
 
-    export_csv_name = 'output_mmse.csv'
+    export_csv_name = metric + '_output_mmse.csv'
     if psych_test == 'NPI-Q':
-        export_csv_name = 'output_npiq.csv'
+        export_csv_name = metric + '_output_npiq.csv'
 
     out_df.to_csv(join(store_dir_path, export_csv_name), index=False)
 
 
-def calculate_percolation(matrix, percolation_mat_path, psych_test=None):
+def calculate_metric(matrix, metric, percolation_mat_path, psych_test=None):
     """
     Returns the global mean percolation centrality of a graph
     created from an adjacency matrix and nodal percolation
@@ -95,12 +102,12 @@ def calculate_percolation(matrix, percolation_mat_path, psych_test=None):
 
     Returns
     -------
-    perc_centrality_list: list
+    metric_val_list: list
                           A list of percolation centralities corresponding
                           to the nodes associated with psych_test
                           Returned when psych_test is not None
     or
-    mean_perc_centrality: float
+    mean_metric_val: float
                           Global mean percolation centrality
                           Returned when psych_test is None
     """
@@ -109,8 +116,7 @@ def calculate_percolation(matrix, percolation_mat_path, psych_test=None):
     matrix_copy = matrix.copy()
 
     percolation = np.load(percolation_mat_path)
-    if is_FDG:
-        percolation = 1. / percolation
+
     # Here we create a dictionary mapping nodes to their attributes
     # such as name of anatomical regions, percolation states, etc.
     node_attribs = {int(label.attrib['index']): {key: int(label.attrib[key])
@@ -130,19 +136,24 @@ def calculate_percolation(matrix, percolation_mat_path, psych_test=None):
     if psych_test is not None:
         func_net = func_net.subgraph(psych_test_nodes[psych_test])
 
-    perc_centrality = nx.percolation_centrality(func_net, weight='weight')
+    graph_metric = metrics[metric]
+
+    if metric == 'cc':
+        metric_val = graph_metric(func_net)
+    else:
+        metric_val = graph_metric(func_net, weight='weight')
 
     if psych_test is not None:
-        perc_centrality_list = [perc_centrality[node_index]
-                                for node_index in perc_centrality]
-        return perc_centrality_list
+        metric_val_list = [metric_val[node_index]
+                           for node_index in metric_val.keys()]
+        return metric_val_list
 
-    mean_perc_centrality = np.mean(np.array(list(perc_centrality.values())))
+    mean_metric_val = np.mean(np.array(list(metric_val.values())))
 
-    return mean_perc_centrality
+    return mean_metric_val
 
 
-def obtain_stats(scan_path):
+def obtain_stats(scan_path_and_metric):
     """
     Returns a 2-tuple of the PET scan ID and a list of all the
     PC values calculated for that scan
@@ -156,27 +167,33 @@ def obtain_stats(scan_path):
                                PET scan ID and corresponding
                                calculated PC values
     """
-    global psych_tests
+    global psych_tests, metrics
+
+    scan_path = scan_path_and_metric[0]
+    metric = scan_path_and_metric[1]
+
     scan_id = scan_path.split('/')[-1]
 
-    adj_mat_path = join(scan_path, 'adj_mat_thresh.npy')
+    adj_mat_path = join(scan_path, 'adj_mat.npy')
     if not exists(adj_mat_path):
         return (scan_id, None)
 
     matrix = np.load(adj_mat_path)
     percolation_mat_path = join(scan_path, 'percolation.npy')
 
-    mean_pc = calculate_percolation(matrix, percolation_mat_path)
+    mean_pc = calculate_metric(matrix, metric, percolation_mat_path)
 
     node_perc_list_mmse = [mean_pc, ]
-    node_perc_list_mmse.extend(calculate_percolation(matrix,
-                                                     percolation_mat_path,
-                                                     psych_test='MMSE'))
+    node_perc_list_mmse.extend(calculate_metric(matrix,
+                                                metric,
+                                                percolation_mat_path,
+                                                psych_test='MMSE'))
 
     node_perc_list_npiq = [mean_pc, ]
-    node_perc_list_npiq.extend(calculate_percolation(matrix,
-                                                     percolation_mat_path,
-                                                     psych_test='NPI-Q'))
+    node_perc_list_npiq.extend(calculate_metric(matrix,
+                                                metric,
+                                                percolation_mat_path,
+                                                psych_test='NPI-Q'))
 
     return (scan_id, [node_perc_list_mmse, node_perc_list_npiq])
 
@@ -199,17 +216,21 @@ scan_paths = list(filter(lambda path: 'Metadata' not in path, scan_paths))
 scan_paths = list(filter(lambda path: exists(join(path, 'adj_mat.npy')),
                          scan_paths))
 
-result_mmse = {}
-result_npiq = {}
 
 if __name__ == '__main__':
     with Pool() as p:
         with tqdm(total=len(scan_paths), desc='Networks analyzed') as pbar:
-            for key, value in p.imap_unordered(obtain_stats, scan_paths):
-                if value is not None:
-                    result_mmse.update({key: value[0]})
-                    result_npiq.update({key: value[1]})
-                pbar.update()
+            result_mmse = {}
+            result_npiq = {}
+            for metric in metrics.keys():
+                scan_paths_and_metric = [(scan_path, metric)
+                                         for scan_path in scan_paths]
+                for key, value in p.imap_unordered(obtain_stats,
+                                                   scan_paths_and_metric):
+                    if value is not None:
+                        result_mmse.update({key: value[0]})
+                        result_npiq.update({key: value[1]})
+                    pbar.update()
 
-    export_csv(result_mmse)
-    export_csv(result_npiq, psych_test='NPI-Q')
+                export_csv(result_mmse, metric)
+                export_csv(result_npiq, metric, psych_test='NPI-Q')

@@ -41,14 +41,16 @@ datasetPath <- opt$dataset
 
 
 getInfluentialNodes <- function(scan_path) {
-    adj_mat <- np$load(file.path(scan_path, "adj_mat_thresh.npy"))
+    adj_mat <- np$load(file.path(scan_path, "adj_mat.npy"))
     adj_mat = (adj_mat != 0)
-    pet_graph <- graph_from_adjacency_matrix( adj_mat )
+    pet_graph_w_loops <- graph_from_adjacency_matrix( adj_mat )
+    pet_graph <- simplify(pet_graph_w_loops, remove.loops=TRUE)
 
     pet_graph <- set_vertex_attr(pet_graph, "name", value=paste("", as.vector(V(pet_graph)), sep=""))
 
     # find influencers, remove them, and plot the results after each removal
-    g <- getInfluencers(pet_graph, d=2)
+    g <- getInfluencers(pet_graph, d=1)
+    # print(g$influencers)
     return(g$influencers)
 }
 
@@ -58,8 +60,8 @@ colnames(juelichAtlasDf)[1] <- 'node_num'
 colnames(juelichAtlasDf)[2] <- 'roi'
 juelichAtlasDf$node_num <- juelichAtlasDf$node_num + 1
 
-mmseDf <- read.csv(file.path(datasetPath, 'stats', 'output_mmse.csv'))
-npiqDf <- read.csv(file.path(datasetPath, 'stats', 'output_npiq.csv'))
+mmseDf <- read.csv(file.path(datasetPath, 'stats', 'pc_output_mmse.csv'))
+npiqDf <- read.csv(file.path(datasetPath, 'stats', 'pc_output_npiq.csv'))
 
 petIds <- c()
 influentialNodeValues <- c()
@@ -73,7 +75,7 @@ pb$tick(0)
 for (scan in npiqDf$PET_ID) {
     petIds <- append(petIds, scan)
     influentialNodes <- getInfluentialNodes(file.path(datasetPath, scan))
-
+    # print(influentialNodes)
     entryMmse <- ""
     entryNpiq <- ""
 

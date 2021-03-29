@@ -7,8 +7,8 @@ from visbrain.objects import SourceObj, ConnectObj
 from os.path import join, exists
 from glob import glob
 
-# mmse_df = pd.read_csv(join('..', 'New_Data', 'AD', 'FDG', 'stats', 'output_mmse.csv'))
-# npiq_df = pd.read_csv(join('..', 'New_Data', 'AD', 'FDG', 'stats', 'output_npiq.csv'))
+# mmse_df = pd.read_csv(join('..', 'Data_revision', 'AD', 'FDG', 'stats', 'output_mmse.csv'))
+# npiq_df = pd.read_csv(join('..', 'Data_revision', 'AD', 'FDG', 'stats', 'output_npiq.csv'))
 
 # df = pd.concat([mmse_df, npiq_df], axis=1)
 # df = df.loc[:,~df.columns.duplicated()]
@@ -19,13 +19,13 @@ from glob import glob
 # print(mmse_df.head(1))
 # print(len(df.columns))
 
-dataset_path = join('..', 'New_Data')
+dataset_path = join('..', 'Data_revision')
 diagnoses = glob(join(dataset_path, '*'))
 diagnoses = list(filter(lambda path: 'stats' not in path, diagnoses))
 
 percolation_states = {'AD': [],
-                      'MCI': [],
-                      'CN': []}
+                    'MCI': [],
+                    'CN': []}
 
 for diagnosis in diagnoses:
     diagnosis_name = diagnosis.split('/')[-1]
@@ -41,11 +41,11 @@ for diagnosis in diagnoses:
 
 # exit()
 
-scan = '131_S_0497~2006-06-28_12_44_51.0~I17585'
-adj_mat = np.load(join('..', 'New_Data', 'AD', 'FDG', scan, 'adj_mat_thresh.npy'))
+scan = '006_S_4153~2013-09-20_11_20_39.0~I391529'
+adj_mat = np.load(join('..', 'Data_revision', 'AD', 'AV45', scan, 'adj_mat_thresh.npy'))
 adj_mat[np.tril_indices_from(adj_mat)] = 0
 adj_mat = np.absolute(adj_mat)
-percolation = np.load(join('..', 'New_Data', 'AD', 'FDG', scan, 'percolation.npy'))
+percolation = np.load(join('..', 'Data_revision', 'AD', 'AV45', scan, 'percolation.npy'))
 
 umin = 0
 umax = 1
@@ -63,15 +63,15 @@ loc_mat = np.array([[row['Voxel_X']-87, row['Voxel_Y']-120, row['Voxel_Z']-70] f
 
 cn_s_obj = SourceObj('rois', loc_mat, data=percolation_states['CN'], color='green', alpha=0.5, edge_width=1., radius_min=2., radius_max=15.)
 # ad_s_obj = SourceObj('rois', loc_mat, data=percolation_states['AD'], color='green', alpha=1, edge_width=1., radius_min=2., radius_max=15.)
-ad_s_obj = SourceObj('rois', loc_mat, color='green', alpha=1, radius_min=15, radius_max=15)
+ad_s_obj = SourceObj('rois', loc_mat, data=percolation_states['AD'], color='yellow', alpha=1, radius_min=15, radius_max=15)
 mci_s_obj = SourceObj('rois', loc_mat, data=percolation_states['MCI'], color='yellow', alpha=0.5, edge_width=1., radius_min=2., radius_max=15.)
 
-c_obj = ConnectObj('edges', loc_mat, adj_mat, alpha=0.5, line_width=1.5,
-                   cmap='gnuplot', antialias=True)
+# c_obj = ConnectObj('edges', loc_mat, adj_mat, alpha=0.5, line_width=1.5,
+#                    cmap='gnuplot', antialias=True)
 
 # func_net = nx.from_numpy_array(adj_mat)
 # print(func_net.number_of_edges())
-vb = Brain(source_obj=ad_s_obj, connect_obj=c_obj)
+vb = Brain(source_obj=[ad_s_obj, ])#, connect_obj=c_obj)
 
 vb.show()
 # # Create an empty kwargs dictionnary :

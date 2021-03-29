@@ -52,8 +52,9 @@ apply_smoothing_filter() {
 registration_and_spatial_realignment() {
 	if [[ "$1" != "Metadata" ]]; then
 		if [[ -e $1/combined_suv.nii.gz ]]; then
-			$FREESURFER_HOME/bin/mri_vol2vol --mni152reg --mov $1/combined_suv.nii.gz --o $1/mni.nii.gz >/dev/null 2>&1
-			$FSLDIR/bin/mcflirt -in $1/mni.nii.gz -meanvol -out $1/out >/dev/null 2>&1
+			$FSLDIR/bin/mcflirt -in $1/combined_suv.nii.gz -meanvol -out $1/realigned >/dev/null 2>&1
+			$FREESURFER_HOME/bin/mri_vol2vol --mni152reg --mov $1/realigned.nii.gz --o $1/out.nii.gz >/dev/null 2>&1
+			# $FSLDIR/bin/mcflirt -in $1/mni.nii.gz -meanvol -out $1/out >/dev/null 2>&1
 		fi
 	fi
 }
